@@ -37,7 +37,7 @@ class ZenggeBulb(object):
         except OSError:
             return False
 
-    def run(cmd, checksum=True):
+    def run(self, cmd, checksum=True):
         self.connect()
         try:
             if self.send(cmd) is False:
@@ -47,18 +47,20 @@ class ZenggeBulb(object):
             print('err')
         return data.hex()
 
-    ### set bulb to rgb mode ###
-    # r: 0 -> 209
-    # g: 0 -> 255
+    ### set bulb to hsl mode ###
+    # r: 0 -> 180
+    # g: 0 -> 100
     # b: 0 -> 100
-    def set_rgb(r, g, b):
-        cmd = [0xb0, 0xb1, 0xb2, 0xb3, 0x00, 0x01, 0x02, 0xec, 0x00, 0x0e, 0xe0, 0x01, 0x00, 0xa1, r, g, b, 0x00, 0x00, 0x00, 0x00, 0x14, 0x00, 0x00]
+    def set_hsl(self, h, s, l):
+        step = 48
+        cmd = [0xb0, 0xb1, 0xb2, 0xb3, 0x00, 0x01, 0x02, 0xec, 0x00, 0x0e, 0xe0, 0x01, 0x00, 0xa1, h, s, l, 0x00, 0x00, 0x00, 0x00, step, 0x00, 0x00]
         return self.run(cmd)
 
     ### set bulb to cct mode ###
     # temp: 0 -> 100, (warm -> cool)
     # brightness : 0 -> 100
-    def set_cct(temp, brightness):
-        cmd = [0x3b, 0xb1, 0x00, 0x00, 0x00, temp, brightness, 0x00, 0x00, 0x30, 0x00, 0x00]
+    def set_cct(self, temp, brightness):
+        step = 48
+        cmd = [0x3b, 0xb1, 0x00, 0x00, 0x00, temp, brightness, 0x00, 0x00, step, 0x00, 0x00]
         return self.run(cmd)
     

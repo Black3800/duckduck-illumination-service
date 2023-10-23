@@ -1,4 +1,5 @@
 from zenggebulb import ZenggeBulb
+from os import environ
 
 from typing import Union
 from fastapi import FastAPI
@@ -6,27 +7,27 @@ from fastapi.encoders import jsonable_encoder
 from pydantic import BaseModel
 
 app = FastAPI()
-bulb = ZenggeBulb("192.168.101.201")
+bulb = ZenggeBulb(environ["BULB_IP"])
 
-class RGBColor(BaseModel):
-    red: int
-    green: int
-    brightness: int
+class HSLColor(BaseModel):
+    h: int
+    s: int
+    l: int
 
 class CCTColor(BaseModel):
     temp: int
     brightness: int
 
 
-@app.post("/rgb")
-def post_rgb(data: RGBColor):
-    rgb = jsonable_encoder(data)
-    bulb.set_rgb(rgb.red, rgb.green, rgb.brightness)
+@app.post("/hsl")
+def post_hsl(data: HSLColor):
+    hsl = jsonable_encoder(data)
+    bulb.set_rgb(hsl["h"], hsl["s"], hsl["l"])
     return {"status": "ok"}
 
 
 @app.post("/cct")
 def post_cct(data: CCTColor):
     cct = jsonable_encoder(data)
-    bulb.set_cct(cct.temp, cct.brightness)
+    bulb.set_cct(cct["temp"], cct["brightness"])
     return {"status": "ok"}
