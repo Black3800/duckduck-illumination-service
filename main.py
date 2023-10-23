@@ -6,6 +6,8 @@ from fastapi import FastAPI
 from fastapi.encoders import jsonable_encoder
 from pydantic import BaseModel
 
+import connectivity
+
 app = FastAPI()
 bulb = ZenggeBulb(environ["BULB_IP"])
 
@@ -17,6 +19,11 @@ class HSLColor(BaseModel):
 class CCTColor(BaseModel):
     temp: int
     brightness: int
+
+
+@app.get("/connectivity/scan")
+def get_scan():
+    return connectivity.scan()
 
 
 @app.post("/hsl")
