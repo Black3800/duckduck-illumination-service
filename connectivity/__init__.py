@@ -12,7 +12,7 @@ def scan():
     delay = 1
     while scanning:
         scan_status = run(["wpa_cli", "-i", "wlan0", "scan"], stdout=PIPE)
-        if scan_status == b'OK\n':
+        if scan_status.stdout == b'OK\n':
             break
         else:
             backoff(delay)
