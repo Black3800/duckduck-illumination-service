@@ -1,7 +1,8 @@
 from zenggebulb import ZenggeBulb
 from os import environ
-from time import sleep
+from time import sleep, monotonic
 from multiprocessing import Process
+import json
 
 from typing import Union
 from fastapi import FastAPI, Response
@@ -10,7 +11,8 @@ from pydantic import BaseModel
 
 import connectivity
 
-import json
+from datetime import datetime, timedelta
+import dateutil.parser
 
 app = FastAPI()
 bulb = ZenggeBulb(environ["BULB_IP"])
@@ -120,10 +122,25 @@ def post_cct(data: CCTColor):
 
 @app.post("/sunrise")
 def post_sunrise(data: Sunrise):
+    global bulb
     global sunrise_process
     ensure_no_sunrise()
     sunrise = jsonable_encoder(data)
-    sunrise_process = Process(target=start_sunrise, args=(sunrise["time_unit"],))
+    delay = []
+    for i in range(3):
+        start_time = monotonic()
+        bulb.set_hsl_norecv(0, 100, 1)
+        end_time = monotonic()
+        delay.append(round(timedelta(seconds=end_time - start_time).microseconds/100000, 3))
+        sleep(0.5)
+        start_time = monotonic()
+        bulb.set_cct_norecv(0, 1)
+        end_time = monotonic()
+        delay.append(round(timedelta(seconds=end_time - start_time).microseconds/100000, 3))
+        sleep(0.5)
+    delay = max(delay)
+    print(f"delay = {delay}")
+    sunrise_process = Process(target=start_sunrise, args=(sunrise["time_unit"] - delay,))
     sunrise_process.start()
     print(f"x: {sunrise_process}")
     return Response(content=json.dumps({"status": "ok"}), media_type="application/json")
@@ -133,8 +150,8 @@ def start_sunrise(time_unit):
     global sunrise_process
     global sunrise_process_pool
     print(f"start {sunrise_process}")
-    # if time_unit < 1:
-    #     time_unit = 1
+    if time_unit < 1:
+        time_unit = 1
     h = 0
     s = 100
     l = 0
