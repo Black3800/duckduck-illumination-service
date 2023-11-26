@@ -1,11 +1,20 @@
 from subprocess import run, PIPE
 from time import sleep
+import urllib
 
-class ConnetivityException(Exception):
+class ConnectivityException(Exception):
     pass
 
 def backoff(seconds):
     sleep(seconds)
+
+def check():
+    try:
+        url = "https://dduck.panitnun.tech"
+        urllib.request.urlopen(url)
+    except:
+        return False
+    return True
 
 def scan():
     scanning = True
@@ -18,7 +27,7 @@ def scan():
             backoff(delay)
             delay += 1
             if delay > 10:
-                raise ConnetivityException("Scan failed")
+                raise ConnectivityException("Scan failed")
     scan_result = run(["wpa_cli", "-i", "wlan0", "scan_result"], stdout=PIPE)
     return scan_result.stdout
 

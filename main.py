@@ -61,6 +61,14 @@ def ensure_no_sunrise():
     sunrise_process_pool = []
 
 
+@app.get("/connectivity/check")
+def get_check():
+    result = {
+        "online": connectivity.check()
+    }
+    return Response(content=json.dumps(result), media_type="application/json")
+
+
 @app.get("/connectivity/scan")
 def get_scan():
     result = connectivity.scan().decode("utf-8")
