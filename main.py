@@ -12,11 +12,12 @@ from pydantic import BaseModel
 
 import connectivity
 
-from datetime import datetime, timedelta
-import dateutil.parser
+from datetime import timedelta
+from dotenv import load_dotenv
 
 app = FastAPI()
-bulb = ZenggeBulb(environ["BULB_IP"])
+bulb_ip = load_dotenv('bulb.conf')
+bulb = ZenggeBulb(bulb_ip) if environ.get('BULB_IP') else None
 sunrise_process = None
 sunrise_process_pool = []
 origins = ['*']
@@ -28,6 +29,9 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+class BulbConnect(BaseModel):
+    ip: str
 
 class Power(BaseModel):
     on: bool
@@ -57,6 +61,14 @@ class WifiSSID(BaseModel):
 
 active_color = None
 
+def with_bulb_connected(func):
+
+    def wrapper_func():
+        if bulb is None:
+            return
+        func()
+    return wrapper_func
+
 
 def ensure_no_sunrise():
     global sunrise_process
@@ -72,6 +84,28 @@ def ensure_no_sunrise():
 
     sunrise_process = None
     sunrise_process_pool = []
+
+
+def save_bulb_ip(ip):
+    f = open("bulb.conf", "w")
+    f.write(f"BULB_IP={ip}")
+    f.close()
+
+
+@app.post("/bulb_connect")
+def post_connect(data: BulbConnect):
+    global bulb
+    global bulb_ip
+    connect = jsonable_encoder(data)
+    bulb_test = ZenggeBulb(connect["ip"])
+    try:
+        bulb_test.get_state()
+        bulb = bulb_test
+        bulb_ip = connect["ip"]
+        save_bulb_ip(connect["ip"])
+        return Response(content=json.dumps({"status": "ok"}), media_type="application/json")
+    except:
+        return Response(content=json.dumps({"status": "failed"}), media_type="application/json")
 
 
 @app.get("/connectivity/check")
