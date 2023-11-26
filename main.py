@@ -65,8 +65,11 @@ def with_bulb_connected(func):
 
     def wrapper_func():
         if bulb is None:
-            return
+            return on_no_bulb
         func()
+
+    def on_no_bulb():
+        return
     return wrapper_func
 
 
