@@ -79,7 +79,7 @@ def get_scan():
     wifi_list = []
     for i in range(1, len(result)-1):
         entry = result[i].split("\t")
-        if entry[3].find("PSK") != -1 and len(entry[4].replace("\\\\", "")) > 0:
+        if entry[3].find("WPA2-PSK") != -1 and len(entry[4].replace("\\\\", "")) > 0:
             wifi_list.append(entry)
     return Response(content=json.dumps(wifi_list), media_type="application/json")
 
