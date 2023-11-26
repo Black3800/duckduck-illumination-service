@@ -15,9 +15,11 @@ import connectivity
 from datetime import timedelta
 from dotenv import load_dotenv
 
+load_dotenv('bulb.conf')
+
 app = FastAPI()
-bulb_ip = load_dotenv('bulb.conf')
-bulb = ZenggeBulb(bulb_ip) if environ.get('BULB_IP') else None
+bulb_ip = environ.get("BULB_IP") or None
+bulb = ZenggeBulb(bulb_ip) if bulb_ip != None else ZenggeBulb('127.0.0.1')
 sunrise_process = None
 sunrise_process_pool = []
 origins = ['*']
@@ -64,7 +66,7 @@ active_color = None
 def with_bulb_connected(func):
 
     def wrapper_func():
-        if bulb is None:
+        if (bulb == None) or (bulb.host == '127.0.0.1'):
             return on_no_bulb()
         else:
             return func()

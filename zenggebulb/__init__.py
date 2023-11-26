@@ -71,6 +71,8 @@ class ZenggeBulb(object):
             return False
 
     def run(self, cmd, checksum=True):
+        if type(self.host) != str:
+            return False
         sock = self.connect()
         data = None
         try:
@@ -132,6 +134,7 @@ class ZenggeBulb(object):
     
     def get_state(self):
         cmd = [0x81, 0x8a, 0x8b, 0x96]
+        print(cmd)
         data = self.run(cmd, checksum=False)
         print(data)
         data = [int(data[i:i+2],16) for i in range(0, len(data), 2)]
