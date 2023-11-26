@@ -135,6 +135,7 @@ def post_connect(data: WifiSSID):
     return Response(content=json.dumps({"status": "ok"}), media_type="application/json")
 
 
+@with_bulb_connected
 @app.post("/power")
 def post_power(data: Power):
     ensure_no_sunrise()
@@ -145,6 +146,7 @@ def post_power(data: Power):
         return Response(content=json.dumps({"status": "failed"}), media_type="application/json")
 
 
+@with_bulb_connected
 @app.post("/hsl")
 def post_hsl(data: HSLColor):
     ensure_no_sunrise()
@@ -155,6 +157,7 @@ def post_hsl(data: HSLColor):
         return Response(content=json.dumps({"status": "failed"}), media_type="application/json")
 
 
+@with_bulb_connected
 @app.post("/hsl_step")
 def post_hsl(data: HSLColorStep):
     ensure_no_sunrise()
@@ -165,6 +168,7 @@ def post_hsl(data: HSLColorStep):
         return Response(content=json.dumps({"status": "failed"}), media_type="application/json")
 
 
+@with_bulb_connected
 @app.post("/cct")
 def post_cct(data: CCTColor):
     ensure_no_sunrise()
@@ -175,6 +179,7 @@ def post_cct(data: CCTColor):
         return Response(content=json.dumps({"status": "failed"}), media_type="application/json")
     
 
+@with_bulb_connected
 @app.get("/state")
 def get_state():
     state = bulb.get_state()
@@ -184,6 +189,7 @@ def get_state():
         return Response(content=json.dumps({"status": "failed"}), media_type="application/json")
 
 
+@with_bulb_connected
 @app.post("/sunrise")
 def post_sunrise(data: Sunrise):
     global bulb
@@ -308,6 +314,7 @@ def sunrise_cct(cct, brightness):
     bulb.set_cct_norecv(cct, brightness)
 
 
+@with_bulb_connected
 @app.post("/dim")
 def post_sunrise():
     global bulb
