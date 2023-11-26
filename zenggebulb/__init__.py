@@ -2,6 +2,11 @@ import socket
 from select import select
 from multiprocessing import Process
 
+TRUE                 = 0xF0
+FALSE                = 0x0F
+ON                   = 0x23
+OFF                  = 0x24
+
 def run_with_limited_time(func, args, kwargs, time):
     """Runs a function with time limit
 
@@ -122,6 +127,46 @@ class ZenggeBulb(object):
         return result
 
     def set_power(self, on):
-        cmd = [0xb0, 0xb1, 0xb2, 0xb3, 0x00, 0x00, 0x00, 0x11, 0x00, 0x03, 0x71, (0x23 if on else 0x24), (0x94 if on else 0x95)]
+        cmd = [0xb0, 0xb1, 0xb2, 0xb3, 0x00, 0x00, 0x00, 0x11, 0x00, 0x03, 0x71, (ON if on else OFF), (0x94 if on else 0x95)]
         return self.run(cmd)
     
+    def get_state(self):
+        cmd = [0x81, 0x8a, 0x8b, 0x96]
+        data = self.run(cmd, checksum=False)
+        print(data)
+        data = [int(data[i:i+2],16) for i in range(0, len(data), 2)]
+        return State(data[1], data[2] == ON, data[3], data[5], Color(data[6], data[7], data[8], data[9], data[12] == TRUE), data[10])
+    
+
+class State:
+    def __init__(self, deviceType, isOn, Mode, Slowness, Color, LedVersionNum):
+        self.deviceType = int(deviceType)
+        self.isOn = bool(isOn)
+        self.Mode = int(Mode)
+        self.Slowness = int(Slowness)
+        self.Color = Color
+        self.LedVersionNum = int(LedVersionNum)
+    
+    def toJSON(self):
+        return {
+            "deviceType": self.deviceType,
+            "isOn": self.isOn,
+            "mode": self.Mode,
+            "slowness": self.Slowness,
+            "color": {
+                "h": self.Color.H,
+                "s": self.Color.S,
+                "l": self.Color.L,
+                "w": self.Color.W,
+                "ignoreW": self.Color.IgnoreW
+            },
+            "ledVersionNum": self.LedVersionNum
+        }
+
+class Color:
+    def __init__(self, H, S, L, W, IgnoreW):
+        self.H = int(H)
+        self.S = int(S)
+        self.L = int(L)
+        self.W = int(W)
+        self.IgnoreW = bool(IgnoreW)

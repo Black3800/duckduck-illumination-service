@@ -45,6 +45,9 @@ class WifiSSID(BaseModel):
     password: str
 
 
+active_color = None
+
+
 def ensure_no_sunrise():
     global sunrise_process
     global sunrise_process_pool
@@ -124,6 +127,15 @@ def post_cct(data: CCTColor):
     cct = jsonable_encoder(data)
     if bulb.set_cct(cct["temp"], cct["brightness"]):
         return Response(content=json.dumps({"status": "ok"}), media_type="application/json")
+    else:
+        return Response(content=json.dumps({"status": "failed"}), media_type="application/json")
+    
+
+@app.get("/state")
+def get_state():
+    state = bulb.get_state()
+    if state:
+        return Response(content=json.dumps({"status": "ok", "data": state.toJSON()}), media_type="application/json")
     else:
         return Response(content=json.dumps({"status": "failed"}), media_type="application/json")
 
@@ -250,3 +262,14 @@ def sunrise_cct(cct, brightness):
     #     return
 
     bulb.set_cct_norecv(cct, brightness)
+
+
+@app.post("/dim")
+def post_sunrise():
+    global bulb
+    ensure_no_sunrise()
+    if bulb.set_hsl(20, 100, 30):
+        return Response(content=json.dumps({"status": "ok"}), media_type="application/json")
+    else:
+        return Response(content=json.dumps({"status": "failed"}), media_type="application/json")
+
