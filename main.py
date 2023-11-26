@@ -96,7 +96,7 @@ def save_bulb_ip(ip):
     f.close()
 
 
-@app.post("/bulb_connect")
+@app.post("/bulb-connect")
 def post_connect(data: BulbConnect):
     global bulb
     global bulb_ip
