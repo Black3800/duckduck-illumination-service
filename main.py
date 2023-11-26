@@ -65,12 +65,11 @@ def with_bulb_connected(func):
 
     def wrapper_func():
         if bulb is None:
-            on_no_bulb()
+            return on_no_bulb()
         else:
-            func()
+            return func()
 
     def on_no_bulb():
-        print('no bulb')
         return Response(content=json.dumps({"status": "failed"}), media_type="application/json")
     return wrapper_func
 
