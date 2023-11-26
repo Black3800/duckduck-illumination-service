@@ -184,8 +184,8 @@ def post_cct(data: CCTColor):
         return Response(content=json.dumps({"status": "failed"}), media_type="application/json")
     
 
-@with_bulb_connected
 @app.get("/state")
+@with_bulb_connected
 def get_state():
     state = bulb.get_state()
     if state:
