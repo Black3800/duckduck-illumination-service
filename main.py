@@ -7,6 +7,7 @@ import json
 from typing import Union
 from fastapi import FastAPI, Response
 from fastapi.encoders import jsonable_encoder
+from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 
 import connectivity
@@ -18,6 +19,15 @@ app = FastAPI()
 bulb = ZenggeBulb(environ["BULB_IP"])
 sunrise_process = None
 sunrise_process_pool = []
+origins = ['*']
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=origins,
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
 class Power(BaseModel):
     on: bool
