@@ -65,11 +65,11 @@ active_color = None
 
 def with_bulb_connected(func):
 
-    def wrapper_func():
+    def wrapper_func(*args, **kwargs):
         if (bulb == None) or (bulb.host == '127.0.0.1'):
             return on_no_bulb()
         else:
-            return func()
+            return func(*args, **kwargs)
 
     def on_no_bulb():
         return Response(content=json.dumps({"status": "failed"}), media_type="application/json")
