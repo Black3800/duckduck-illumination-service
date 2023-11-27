@@ -63,17 +63,17 @@ class WifiSSID(BaseModel):
 
 active_color = None
 
-def with_bulb_connected(func):
+# def with_bulb_connected(func):
 
-    def wrapper_func(*args, **kwargs):
-        if (bulb == None) or (bulb.host == '127.0.0.1'):
-            return on_no_bulb()
-        else:
-            return func(*args, **kwargs)
+#     def wrapper_func(*args, **kwargs):
+#         if (bulb == None) or (bulb.host == '127.0.0.1'):
+#             return on_no_bulb()
+#         else:
+#             return func(*args, **kwargs)
 
-    def on_no_bulb():
-        return Response(content=json.dumps({"status": "failed"}), media_type="application/json")
-    return wrapper_func
+#     def on_no_bulb():
+#         return Response(content=json.dumps({"status": "failed"}), media_type="application/json")
+#     return wrapper_func
 
 
 def ensure_no_sunrise():
@@ -142,7 +142,7 @@ def post_connect(data: WifiSSID):
 
 
 @app.post("/power")
-@with_bulb_connected
+# @with_bulb_connected
 def post_power(data: Power):
     ensure_no_sunrise()
     power = jsonable_encoder(data)
@@ -153,7 +153,7 @@ def post_power(data: Power):
 
 
 @app.post("/hsl")
-@with_bulb_connected
+# @with_bulb_connected
 def post_hsl(data: HSLColor):
     ensure_no_sunrise()
     hsl = jsonable_encoder(data)
@@ -164,7 +164,7 @@ def post_hsl(data: HSLColor):
 
 
 @app.post("/hsl_step")
-@with_bulb_connected
+# @with_bulb_connected
 def post_hsl(data: HSLColorStep):
     ensure_no_sunrise()
     hsl = jsonable_encoder(data)
@@ -175,7 +175,7 @@ def post_hsl(data: HSLColorStep):
 
 
 @app.post("/cct")
-@with_bulb_connected
+# @with_bulb_connected
 def post_cct(data: CCTColor):
     ensure_no_sunrise()
     cct = jsonable_encoder(data)
@@ -186,7 +186,7 @@ def post_cct(data: CCTColor):
     
 
 @app.get("/state")
-@with_bulb_connected
+# @with_bulb_connected
 def get_state():
     state = bulb.get_state()
     if state:
@@ -196,7 +196,7 @@ def get_state():
 
 
 @app.post("/sunrise")
-@with_bulb_connected
+# @with_bulb_connected
 def post_sunrise(data: Sunrise):
     global bulb
     global sunrise_process
@@ -321,7 +321,7 @@ def sunrise_cct(cct, brightness):
 
 
 @app.post("/dim")
-@with_bulb_connected
+# @with_bulb_connected
 def post_sunrise():
     global bulb
     ensure_no_sunrise()
