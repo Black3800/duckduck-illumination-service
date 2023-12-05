@@ -53,8 +53,8 @@ class HSLColorStep(BaseModel):
     step: int
 
 class CCTColor(BaseModel):
-    temp: int
-    brightness: int
+    temp: Union[int, float]
+    brightness: Union[int, float]
 
 class WifiSSID(BaseModel):
     ssid: str
@@ -179,6 +179,9 @@ def post_hsl(data: HSLColorStep):
 def post_cct(data: CCTColor):
     ensure_no_sunrise()
     cct = jsonable_encoder(data)
+    cct["temp"] = round(cct["temp"])
+    cct["brightness"] = round(cct["brightness"])
+    print(cct)
     if bulb.set_cct(cct["temp"], cct["brightness"]):
         return Response(content=json.dumps({"status": "ok"}), media_type="application/json")
     else:
